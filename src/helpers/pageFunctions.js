@@ -1,4 +1,4 @@
-import { searchCities, getWeatherByCity } from './weatherAPI';
+import { searchCities, getWeatherByCity, requestForecast } from './weatherAPI';
 
 /**
  * Cria um elemento HTML com as informações passadas
@@ -78,7 +78,7 @@ export function showForecast(forecastList) {
  */
 export async function createCityElement(cityInfo) {
   const ul = document.querySelector('#cities');
-  const { name, country, temp, condition, icon } = cityInfo;
+  const { name, country, temp, condition, url, icon } = cityInfo;
   const cityElement = createElement('li', 'city');
   const headingElement = createElement('div', 'city-heading');
   const nameElement = createElement('h2', 'city-name', name);
@@ -100,9 +100,18 @@ export async function createCityElement(cityInfo) {
   infoContainer.appendChild(tempContainer);
   infoContainer.appendChild(iconElement);
 
+  const button = document.createElement('button');
+  button.textContent = 'Ver previsão';
+  button.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const foreCastInfo = await requestForecast(url);
+    console.log(foreCastInfo);
+  });
+
   ul.appendChild(cityElement);
   cityElement.appendChild(headingElement);
   cityElement.appendChild(infoContainer);
+  cityElement.appendChild(button);
 
   return cityElement;
 }
@@ -116,14 +125,18 @@ export async function handleSearch(event) {
 
   const searchInput = document.getElementById('search-input');
   const searchValue = searchInput.value;
-  const urls = await searchCities(searchValue);
-  const promises = getWeatherByCity(urls);
-  const response = await promises;
-  let count = 0;
-  const output = response.map((city) => {
-    city.url = urls[count];
-    count += 1;
-    return city;
-  });
-  return output.forEach((cityInfo) => createCityElement(cityInfo));
+  try {
+    const urls = await searchCities(searchValue);
+    const promises = getWeatherByCity(urls);
+    const response = await promises;
+    let count = 0;
+    const output = response.map((city) => {
+      city.url = urls[count];
+      count += 1;
+      return city;
+    });
+    return output.forEach((cityInfo) => createCityElement(cityInfo));
+  } catch (error) {
+    return alert('Nenhuma cidade encontrada');
+  }
 }
