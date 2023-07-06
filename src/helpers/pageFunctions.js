@@ -13,7 +13,7 @@ function createElement(tagName, className, textContent = '') {
 /**
  * Recebe as informações de uma previsão e retorna um elemento HTML
  */
-function createForecast(forecast) {
+export function createForecast(forecast) {
   const { date, maxTemp, minTemp, condition, icon } = forecast;
 
   const weekday = new Date(date);
@@ -76,7 +76,7 @@ export function showForecast(forecastList) {
 /**
  * Recebe um objeto com as informações de uma cidade e retorna um elemento HTML
  */
-export async function createCityElement(cityInfo) {
+export function createCityElement(cityInfo) {
   const ul = document.querySelector('#cities');
   const { name, country, temp, condition, url, icon } = cityInfo;
   const cityElement = createElement('li', 'city');
@@ -102,16 +102,19 @@ export async function createCityElement(cityInfo) {
 
   const button = document.createElement('button');
   button.textContent = 'Ver previsão';
-  button.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const foreCastInfo = await requestForecast(url);
-    console.log(foreCastInfo);
-  });
-
   ul.appendChild(cityElement);
   cityElement.appendChild(headingElement);
   cityElement.appendChild(infoContainer);
   cityElement.appendChild(button);
+
+  button.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const dataForecast = await requestForecast(url);
+    return showForecast(dataForecast);
+    // const listElements = dataForecast.map((day) => createForecast(day));
+    // console.log(listElements);
+    // return showForecast(listElements);
+  });
 
   return cityElement;
 }

@@ -42,15 +42,16 @@ export async function requestForecast(url) {
     `${BASE_URL}forecast.json?lang=pt&key=${token}&q=${url}&days=7`,
   );
   const data = await response.json();
-  return data.forEach((prev) => {
-    const { forecast } = prev;
-    const { forecastday } = forecast;
+  const { forecast } = data;
+  const { forecastday } = forecast;
+  const daysPrev = forecastday.map((dia) => {
     const newData = Object();
-    newData.date = forecastday.date;
-    newData.maxTemp = forecastday.day.maxtemp_c;
-    newData.minTemp = forecastday.day.mintemp_c;
-    newData.condition = forecast.day.condition.text;
-    newData.icon = forecast.day.condition.icon;
+    newData.date = dia.date;
+    newData.maxTemp = dia.day.maxtemp_c;
+    newData.minTemp = dia.day.mintemp_c;
+    newData.condition = dia.day.condition.text;
+    newData.icon = dia.day.condition.icon;
     return newData;
   });
+  return daysPrev;
 }
